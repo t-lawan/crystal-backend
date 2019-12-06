@@ -2,12 +2,12 @@ import { v4} from 'uuid'
 
 export class User {
     id: string;
-    name: string;
+    username: string;
     no_of_connections = 0;
 
-    constructor(name: string) {
+    constructor(username: string) {
         this.id = v4();
-        this.name = name;
+        this.username = username;
     }
 
     updateConnections() {
