@@ -1,16 +1,12 @@
 export class ResponseService {
     static success = (data: object | string) => {
-        let body = {
-            data: data,
-            error: null,
-        }
         return {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': true
             },
-            body: JSON.stringify(body)
+            body: ResponseService.generateBody(data, null, true)
         }
     }
 
@@ -21,12 +17,17 @@ export class ResponseService {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': true,
             },
-            body: JSON.stringify({
-                error: {
-                   message: message
-                }
-            })
-                
+            body: ResponseService.generateBody(null, message, false)      
         }
     }
+
+    static generateBody = (data: object| string | null, error: string | null, success: boolean): string => {
+        let body =  {
+            data: data,
+            error: error,
+            success: success
+        }
+
+        return JSON.stringify(body);
+    } 
 }
