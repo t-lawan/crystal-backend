@@ -34,3 +34,16 @@ export const addUser: APIGatewayProxyHandler = async(event, context) => {
 
     }
 }
+
+export const getUsers: APIGatewayProxyHandler = async(event, context) => {
+    try {
+
+        // Use Database Service to retrieve all users
+        let users = []
+        // Send Response
+        return ResponseService.success(users);
+    } catch(error) {
+        return ResponseService.error(error.message, error.statusCode);
+
+    }
+}

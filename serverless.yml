@@ -61,3 +61,10 @@ functions:
           method: post
           path: user/create
           cors: true
+  getUsers:
+    handler: src/controllers/UserController.getUsers
+    events:
+      - http: 
+          method: get
+          path: users
+          cors: true
