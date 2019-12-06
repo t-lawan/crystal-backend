@@ -13,7 +13,7 @@ export const addUser: APIGatewayProxyHandler = async(event, context) => {
 
         // Validate username so it's alphanumeric minLength 1 maxLength 20
         if(!body.username) {
-            throw new Error('This request should have a username property');
+            throw new Error('Request is missing username');
         }
 
         if(!validator.isAlphanumeric(body.username)) {
@@ -51,13 +51,17 @@ export const addUser: APIGatewayProxyHandler = async(event, context) => {
 
 export const getUsers: APIGatewayProxyHandler = async(event, context) => {
     try {
-
         // Use Database Service to retrieve all users
-        let users = []
+        let users = [];
+        let db: DatabaseService;
+
+        db = new DatabaseService('users');
+        await db.getAllItems().then((resp) => {
+            users = resp.Items
+        })
         // Send Response
         return ResponseService.success(users);
     } catch(error) {
         return ResponseService.error(error.message, error.statusCode);
-
     }
 }
