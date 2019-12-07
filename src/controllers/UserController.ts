@@ -29,7 +29,7 @@ export const addUser: APIGatewayProxyHandler = async(event, context) => {
         let result;
         await db.scan({
             username: body.username
-        }).then((resp) => {
+        }, true).then((resp) => {
             result = resp.Items;
         });
 

@@ -1,12 +1,18 @@
 import { DynamoDB, AWSError } from 'aws-sdk';
+import { bool } from 'aws-sdk/clients/signer';
 
 export class DatabaseService {
     private tableName: string;
     dynamoDBDocuClient: DynamoDB.DocumentClient;
 
 
-    constructor(tableName: string = process.env.USER_DYNAMODB_TABLE || process.env.CRYSTAL_DYNAMODB_TABLE) {
+    constructor(tableName: string = 'users' || 'crystals' || 'notification') {
         this.tableName = tableName;
+        this.dynamoDBDocuClient = new DynamoDB.DocumentClient({region: process.env.REGION});
+    }
+
+    updateTableName = (tableName) => {
+        this.tableName =tableName;
     }
 
     getItem =  async(id: string) : Promise<any> => {
@@ -53,8 +59,8 @@ export class DatabaseService {
         return this.dynamoDBDocuClient.update(params).promise();
 
     }
-    scan = async (expression: object): Promise<any> => {
-        const filterExpression: string = this.generateFilterExpression(Object.keys(expression));
+    scan = async (expression: object, andOperator: bool): Promise<any> => {
+        const filterExpression: string = this.generateFilterExpression(Object.keys(expression), andOperator ? ' and '  : ' or ');
         const expressionAttributeValues = this.generateExpressionAttributeValues(expression);
         const params = {
             TableName: this.tableName,
@@ -65,12 +71,12 @@ export class DatabaseService {
         return this.dynamoDBDocuClient.scan(params).promise();
     }
 
-    private generateFilterExpression = (items: string[]): string => {
+    private generateFilterExpression = (items: string[], operator: string = ' and ' || ' or '): string => {
         let response: string = '';
         items.forEach((item, index) => {
             response += `${item} = :${item}`;
             if (index !== items.length - 1) {
-                response += ' and ';
+                response += operator;
             }
         });
         return response;
