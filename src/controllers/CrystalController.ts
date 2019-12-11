@@ -4,6 +4,7 @@ import { Crystal } from '../models/Crystal';
 import { DatabaseService } from '../services/DatabaseService';
 import validator from 'validator';
 import { User } from '../models/User';
+import * as moment from 'moment';
 
 export const addCrystal: APIGatewayProxyHandler = async (event, context) => {
     try {
@@ -113,9 +114,9 @@ export const sendCrystalToUser: APIGatewayProxyHandler = async (event, context) 
         })
         
         // Update crystal
-        console.log(typeof crystal);
         crystal.receiver_id = receiverUser.id;
         crystal.sent = true;
+        crystal.time_sent = moment().toISOString();
         // crystal.sendTo(receiverUser.id);
 
         // Update connections for both users

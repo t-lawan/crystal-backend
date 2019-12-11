@@ -25,6 +25,28 @@ provider:
     CRYSTAL_DYNAMODB_TABLE: crystals
     NOTIFICATION_DYNAMODB_TABLE: notifications
     REGION: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_DYNAMODB_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CRYSTAL_DYNAMODB_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTIFICATION_DYNAMODB_TABLE}"
   usagePlan: # Optional usage plan configuration
     quota:
       limit: 5000
@@ -116,3 +138,10 @@ functions:
           method: post
           path: crystal/send
           cors: true
+  handleNewNotifications:
+    handler: src/controllers/NotificationController.handleNotification
+    events:
+      - websocket:
+          route: $connect
+      - websocket:
+          route: $disconnect
