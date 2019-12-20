@@ -46,6 +46,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTIFICATION_DYNAMODB_TABLE}"
   usagePlan: # Optional usage plan configuration
     quota:
@@ -113,19 +114,30 @@ functions:
           method: get
           path: users
           cors: true
-  addCrystal:
-    handler: src/controllers/CrystalController.addCrystal
+  getUser:
+    handler: src/controllers/UserController.getUser
     events:
       - http: 
-          method: post
-          path: crystal/create
+          method: get
+          path: user/{username}
           cors: true
+          request:
+            parameters:
+              paths:
+                username: true
+  # addCrystal:
+  #   handler: src/controllers/CrystalController.addCrystal
+  #   events:
+  #     - http: 
+  #         method: post
+  #         path: crystal/create
+  #         cors: true
   getCrystalsForUser:
     handler: src/controllers/CrystalController.getCrystalsForUser
     events:
       - http: 
           method: get
-          path: user/{user_id}/crystals
+          path: crystal/user/{user_id}
           cors: true
           request:
             parameters:
@@ -138,10 +150,18 @@ functions:
           method: post
           path: crystal/send
           cors: true
-  handleNewNotifications:
-    handler: src/controllers/NotificationController.handleNotification
+  connectSocket:
+    handler: src/controllers/NotificationController.connectSocket
     events:
       - websocket:
           route: $connect
+  disconnectSocket:
+    handler: src/controllers/NotificationController.disconnectSocket
+    events:
       - websocket:
           route: $disconnect
+  messageSocket:    
+    handler: src/controllers/NotificationController.messageSocket
+    events:
+      - websocket:
+          route: $default
