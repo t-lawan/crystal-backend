@@ -3,12 +3,10 @@ import * as moment from 'moment';
 
 export class Crystal {
     id: string; 
-    proverb_id?: string;
+    message?: string;
     sender_id: string;
     receiver_id?: string;
-    sent: boolean = false;
     time_created: string;
-    time_sent?: string;
     constructor(sender_id: string) {
         this.id = v4();
         this.sender_id = sender_id;
@@ -17,7 +15,5 @@ export class Crystal {
 
     sendTo(receiver_id: string): void {
         this.receiver_id = receiver_id;
-        this.sent = true;
-        this.time_sent = moment().toISOString();
     }
 }
