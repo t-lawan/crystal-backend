@@ -3,6 +3,7 @@ import { ResponseService } from "../services/ResponseService";
 import validator from "validator";
 import { User } from "../models/User";
 import { DatabaseService } from "../services/DatabaseService";
+import { ApiGatewayManagementApi, Lambda } from "aws-sdk";
 
 export const addUser: APIGatewayProxyHandler = async (event, context) => {
   try {
@@ -46,6 +47,14 @@ export const addUser: APIGatewayProxyHandler = async (event, context) => {
     user = new User(body.username);
     // Add to Database
     await db.putItem(user);
+
+    // Invoke lambda
+    let lambda = new Lambda();
+    let params = {
+      FunctionName: 'crystal-backend-dev-notifyAllUsers',
+      InvokeArgs: JSON.stringify(user),
+    };
+    await lambda.invokeAsync(params);
     // Send Response
     return ResponseService.success(user);
   } catch (error) {
@@ -57,29 +66,34 @@ export const addUser: APIGatewayProxyHandler = async (event, context) => {
 
 export const getUser: APIGatewayProxyHandler = async (event, context) => {
   try {
-    const username = event.pathParameters.username; 
+    const username = event.pathParameters.username;
 
     // Validate username so it's alphanumeric minLength 1 maxLength 20
     if (!username) {
-        throw new Error("Request is missing username");
-      }
-  
-      if (!validator.isAlphanumeric(username)) {
-        throw new Error("The username must alphanumeric");
-      }
-  
-      if (!validator.isLength(username, { min: 1, max: 20 })) {
-        throw new Error("The username must be between 1 and 20");
-      }
+      throw new Error("Request is missing username");
+    }
 
-      let user: User;
-      let db: DatabaseService;
+    if (!validator.isAlphanumeric(username)) {
+      throw new Error("The username must alphanumeric");
+    }
 
-      db = new DatabaseService('users');
-      await db.scan({
+    if (!validator.isLength(username, { min: 1, max: 20 })) {
+      throw new Error("The username must be between 1 and 20");
+    }
+
+    let user: User;
+    let db: DatabaseService;
+
+    db = new DatabaseService("users");
+    await db
+      .scan(
+        {
           username: username
-      }, true).then((resp) => {
-          user =  resp.Items[0]
+        },
+        true
+      )
+      .then(resp => {
+        user = resp.Items[0];
       });
 
     return ResponseService.success(user);
@@ -98,11 +112,11 @@ export const getUsers: APIGatewayProxyHandler = async (event, context) => {
       users = resp.Items;
     });
 
-    let mappedUsers = users.map((user) => {
+    let mappedUsers = users.map(user => {
       return {
         id: user.id,
         username: user.username
-      }
+      };
     });
     // Send Response
     return ResponseService.success(mappedUsers);
