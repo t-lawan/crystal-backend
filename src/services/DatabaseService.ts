@@ -59,6 +59,16 @@ export class DatabaseService {
         return this.dynamoDBDocuClient.update(params).promise();
 
     }
+
+    deleteItem = async(id: string): Promise<any> => {
+        let params = {
+            TableName: this.tableName,
+            Key: {
+                id: id
+            }
+        }
+        return this.dynamoDBDocuClient.delete(params).promise();
+    }
     scan = async (expression: object, andOperator: bool): Promise<any> => {
         const filterExpression: string = this.generateFilterExpression(Object.keys(expression), andOperator ? ' and '  : ' or ');
         const expressionAttributeValues = this.generateExpressionAttributeValues(expression);
