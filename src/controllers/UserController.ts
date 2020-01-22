@@ -54,7 +54,12 @@ export const addUser: APIGatewayProxyHandler = async (event, context) => {
       FunctionName: 'crystal-backend-dev-notifyAllUsers',
       InvokeArgs: JSON.stringify(user),
     };
-    await lambda.invokeAsync(params);
+    await lambda.invokeAsync(params, (err, data) => {
+      if(err) {
+        console.log('err',err);
+      }
+      console.log('d', data);
+    });
     // Send Response
     return ResponseService.success(user);
   } catch (error) {
