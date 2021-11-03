@@ -16,7 +16,7 @@
     "serverless-websockets-plugin": "^1.0.0",
     "source-map-support": "^0.5.10",
     "uuid": "^3.3.3",
-    "validator": "^12.1.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
